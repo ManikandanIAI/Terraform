@@ -1,12 +1,23 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.34.0"
+    }
+  }
+}
+
+
 # Configure the Azure provider
 provider "azurerm" {
   features {}
+  subscription_id = "0016b6d2-2a24-48d7-a952-0edb993d5619"
 }
 
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
   name     = "spot-vm-rg"
-  location = "eastus"
+  location = "southindia"
 }
 
 # Create a virtual network
@@ -31,6 +42,7 @@ resource "azurerm_public_ip" "public_ip" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
+  sku                 = "Basic"
 }
 
 # Create a network security group
@@ -152,10 +164,10 @@ resource "azurerm_network_interface" "nic" {
 }
 
 # Create a Linux spot VM
-resource "azurerm_linux_virtual_machine" "spot_vm" {
+resource "azurerm_linux_virtual_machine" "spot-vm" {
   name                  = "spot-vm"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
+  resource_group_name   = "spot-vm-rg"
+  location              = "southindia"
   size                  = "Standard_D2s_v3"
   admin_username        = "adminuser" # Replace with your preferred username
   network_interface_ids = [azurerm_network_interface.nic.id]
@@ -173,8 +185,8 @@ resource "azurerm_linux_virtual_machine" "spot_vm" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "20_04-lts"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
